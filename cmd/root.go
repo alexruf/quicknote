@@ -65,7 +65,7 @@ func initConfig() {
 	viper.AddConfigPath(filepath.Join(home, common.ConfigDir))
 	viper.SetConfigName(common.ConfigName)
 	viper.SetConfigType(common.ConfigType)
-	viper.SetEnvPrefix(common.ApplicationName)
+	viper.SetEnvPrefix(common.ApplicationShortName)
 	viper.AutomaticEnv()
 	viper.SetFs(fs)
 	if err := viper.ReadInConfig(); err != nil {
