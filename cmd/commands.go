@@ -3,14 +3,14 @@ package cmd
 import "github.com/spf13/cobra"
 
 type commandsBuilder struct {
-	commands []cmder
+	commands []commandContext
 }
 
 func newCommandsBuilder() *commandsBuilder {
 	return &commandsBuilder{}
 }
 
-func (b *commandsBuilder) addCommands(commands ...cmder) *commandsBuilder {
+func (b *commandsBuilder) addCommands(commands ...commandContext) *commandsBuilder {
 	b.commands = append(b.commands, commands...)
 	return b
 }
@@ -30,7 +30,7 @@ func (b *commandsBuilder) build() *quicknoteCmd {
 	return cc
 }
 
-func addChildCommands(root *cobra.Command, commands ...cmder) {
+func addChildCommands(root *cobra.Command, commands ...commandContext) {
 	for _, command := range commands {
 		cmd := command.getCommand()
 		if cmd == nil {

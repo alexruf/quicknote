@@ -6,7 +6,7 @@ import (
 	"regexp"
 )
 
-type cmder interface {
+type commandContext interface {
 	getCommand() *cobra.Command
 }
 
