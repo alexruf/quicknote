@@ -17,7 +17,7 @@ RESET_COLOR=\033[0m
 ## build: build the application
 build: clean fmt lint mod-tidy
 	@echo -e "${GRAY}>> ⚙️\t${MAGENTA}Building...${RESET_COLOR}"
-	@go build ${BUILD_FLAGS} -o ${TARGET} -v -trimpath .
+	@go build ${BUILD_FLAGS} -ldflags="-s -w" -o ${TARGET} -v -trimpath .
 .PHONY: build
 
 ## test: execute tests of all packages
