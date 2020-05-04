@@ -5,6 +5,7 @@ import (
 	"github.com/alexruf/quicknote/common"
 	"github.com/alexruf/quicknote/config"
 	"github.com/spf13/cobra"
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 func init() {
@@ -43,6 +44,9 @@ func Execute(args []string) Response {
 
 type quicknoteCmd struct {
 	*baseBuilderCmd
+	Verbose bool
+	Debug   bool
+	Trace   bool
 }
 
 func (b *commandsBuilder) newQuicknoteCmd() *quicknoteCmd {
@@ -60,7 +64,30 @@ Complete documentation is available at ` + common.Website,
 			}
 			return nil
 		},
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			cc.setStdoutThreshold()
+		},
 	})
-	cc.cmd.SilenceUsage = true
+	cc.cmd.SilenceUsage = true // Only show usage for user errors
+
+	// Persistent flags
+	cc.cmd.PersistentFlags().BoolVarP(&cc.Verbose, "verbose", "v", false, "verbose output")
+	cc.cmd.PersistentFlags().BoolVarP(&cc.Debug, "debug", "", false, "debug output")
+	_ = cc.cmd.PersistentFlags().MarkHidden("debug") // Hide in usage
+	cc.cmd.PersistentFlags().BoolVarP(&cc.Trace, "trace", "", false, "trace output")
+	_ = cc.cmd.PersistentFlags().MarkHidden("trace") // Hide in usage
+
 	return cc
+}
+
+func (q quicknoteCmd) setStdoutThreshold() {
+	if q.Verbose {
+		jww.SetStdoutThreshold(jww.LevelInfo)
+	}
+	if q.Debug {
+		jww.SetStdoutThreshold(jww.LevelDebug)
+	}
+	if q.Trace {
+		jww.SetStdoutThreshold(jww.LevelTrace)
+	}
 }
