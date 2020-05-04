@@ -9,39 +9,40 @@ import (
 	"path/filepath"
 )
 
-func HasConfig() bool {
-	return len(viper.ConfigFileUsed()) > 0
+func ExistsConfigFile() bool {
+	fs := afero.NewOsFs()
+	if exists, err := afero.Exists(fs, getConfigFilePath()); err == nil && exists {
+		// Empty files don't count
+		if empty, err := afero.IsEmpty(fs, getConfigFilePath()); err == nil && !empty {
+			return true
+		}
+	}
+	return false
 }
 
 func InitConfig() {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		jww.ERROR.Fatalln("Error: ", err)
-	}
-
-	configPath := filepath.Join(home, common.ConfigDir)
-	configFileName := common.ConfigName + "." + common.ConfigType
+	configDirPath := getConfigDirPath()
 	fs := afero.NewOsFs()
-	if exists, err := afero.DirExists(fs, configPath); err != nil {
+	if exists, err := afero.DirExists(fs, configDirPath); err != nil {
 		jww.ERROR.Fatalln("Error: ", err)
 	} else {
 		if !exists {
-			if err := fs.MkdirAll(configPath, 0755); err != nil {
+			if err := fs.MkdirAll(configDirPath, 0755); err != nil {
 				jww.ERROR.Fatalln("Error: ", err)
 			}
 		}
 	}
-	if exists, err := afero.Exists(fs, filepath.Join(configPath, configFileName)); err != nil {
+	if exists, err := afero.Exists(fs, getConfigFilePath()); err != nil {
 		jww.ERROR.Fatalln("Error: ", err)
 	} else {
 		if !exists {
-			if _, err := fs.Create(filepath.Join(configPath, configFileName)); err != nil {
+			if _, err := fs.Create(getConfigFilePath()); err != nil {
 				jww.ERROR.Fatalln("Error: ", err)
 			}
 		}
 	}
 
-	viper.AddConfigPath(filepath.Join(home, common.ConfigDir))
+	viper.AddConfigPath(configDirPath)
 	viper.SetConfigName(common.ConfigName)
 	viper.SetConfigType(common.ConfigType)
 	viper.SetEnvPrefix(common.ApplicationShortName)
@@ -52,4 +53,24 @@ func InitConfig() {
 			jww.ERROR.Fatalln("Error: ", err)
 		}
 	}
+}
+
+func getConfigDirPath() string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		jww.ERROR.Fatalln("Error: ", err)
+	}
+	path, err := filepath.Abs(filepath.Join(home, common.ConfigDirName))
+	if err != nil {
+		jww.ERROR.Fatalln("Error: ", err)
+	}
+	return path
+}
+
+func getConfigFileName() string {
+	return common.ConfigName + "." + common.ConfigType
+}
+
+func getConfigFilePath() string {
+	return filepath.Join(getConfigDirPath(), getConfigFileName())
 }

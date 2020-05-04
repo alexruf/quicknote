@@ -19,7 +19,7 @@ func (b *commandsBuilder) newConfigureCmd() *configureCmd {
 		Long:  `Configure ` + common.ApplicationName + ` with your preferred settings.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			jww.FEEDBACK.Println(cmd.Short)
-			if config.HasConfig() {
+			if config.ExistsConfigFile() {
 				jww.FEEDBACK.Println(common.ApplicationName + " already detected a configuration. Do you want to overwrite the existing configuration?")
 			} else {
 				jww.FEEDBACK.Println(common.ApplicationName + " Needs to know a few things before we can start...")
